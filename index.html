@@ -1,16 +1,14 @@
-<!DOCTYPE html>
-<html lang="zh-CN" data-theme="dark">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>数独游戏 & 计算器 · SUK 投降吧</title>
+<html lang="zh-CN" data-theme="light"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数独游戏 &amp; 计算器 · SUK 投降吧</title>
   <style>
     /* --- Original Styles (unchanged) --- */
     :root {      --bg: #0f172a; --panel: #1e293b; --muted: #94a3b8; --text: #e2e8f0; --accent: #22d3ee; --accent-2: #a78bfa; --good: #34d399; --bad: #f87171; --warn: #f59e0b; --grid-border: #334155; --cell-bg: #0f172a; --cell-placeholder: #475569; --cell-focus-glow: rgba(34,211,238,.12); --cell-error-bg: linear-gradient(180deg, rgba(248,113,113,.18), rgba(248,113,113,.06)); --highlight-bg: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); --btn-border: rgba(255,255,255,.08); --btn-bg: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); --btn-shadow-inset: 0 1px 0 rgba(255,255,255,.06) inset; --code-bg: rgba(255,255,255,.06); --shadow: 0 10px 30px rgba(0,0,0,.35); --radius: 18px;    }
     html[data-theme="light"] {      --bg: #f1f5f9; --panel: #ffffff; --muted: #64748b; --text: #1e293b; --accent: #0891b2; --accent-2: #8b5cf6; --good: #10b981; --bad: #ef4444; --warn: #f59e0b; --grid-border: #cbd5e1; --cell-bg: #f8fafc; --cell-placeholder: #94a3b8; --cell-focus-glow: rgba(8,145,178,.1); --cell-error-bg: linear-gradient(180deg, rgba(239,68,68,.15), rgba(239,68,68,.05)); --highlight-bg: linear-gradient(180deg, rgba(0,0,0,.02), transparent); --btn-border: #e2e8f0; --btn-bg: linear-gradient(180deg, #ffffff, #f8fafc); --btn-shadow-inset: 0 1px 0 rgba(0,0,0,.02) inset; --code-bg: #f1f5f9; --shadow: 0 10px 30px rgba(0,0,0,.1);    }
     html,body{height:100%}
-    body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, PingFang SC, Noto Sans SC, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background: radial-gradient(1200px 600px at 20% -10%, var(--accent), transparent .6), radial-gradient(1400px 800px at 120% 20%, var(--accent-2), transparent .8), var(--bg); background-blend-mode: color-dodge; color:var(--text); display:flex; align-items:center; justify-content:center; padding:24px; box-sizing: border-box; transition: background .3s, color .3s; }
-    .app{width:min(1100px, 95vw); display:grid; grid-template-columns: 1fr 360px; gap:24px; align-items:start}
+    body{margin:0;font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, PingFang SC, Noto Sans SC, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";background: radial-gradient(1200px 600px at 20% -10%, var(--accent), transparent .6), radial-gradient(1400px 800px at 120% 20%, var(--accent-2), transparent .8), var(--bg);background-blend-mode: color-dodge;color:var(--text);display:flex;align-items:center;justify-content:center;padding:24px;box-sizing: border-box;transition: background .3s, color .3s;}
+    .app{/* width:min(1100px, 95vw); */display:grid;grid-template-columns: 1fr 360px;gap:24px;align-items:start}
     .panel{background:var(--panel); border:1px solid var(--btn-border); box-shadow:var(--shadow); border-radius:var(--radius); padding:20px; transition: .3s background, .3s border-color;}
     header{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px}
     .title{display:flex; align-items:center; gap:12px}
@@ -69,27 +67,477 @@
     .num-btn { display: flex; align-items: center; justify-content: center; aspect-ratio: 1/1; font-size: 20px; font-weight: bold; padding: 0; }
     .num-btn.active { background: var(--primary); border-color: var(--accent); transform: scale(1.05); }
 
-    @media (max-width: 900px){ .app{grid-template-columns: 1fr} .aside {display: none;} }
+    @media (max-width: 900px){ .app{grid-template-columns: 1fr;} .aside {display: none;} }
     @media (max-width: 480px) {
-        body { padding: 12px; } .app { gap: 16px; } .panel { padding: 16px; } header { flex-direction: column; align-items: flex-start; gap: 16px; } .header-controls { align-self: stretch; justify-content: space-between; } .badge { margin-left: 0; }
+        body {padding: 0px;} .app {gap: 0px;} .panel { padding: 16px; } header { flex-direction: column; align-items: flex-start; gap: 16px; } .header-controls { align-self: stretch; justify-content: space-between; } .badge { margin-left: 0; }
         h1 { font-size: 18px; } .logo { width: 32px; height: 32px; } .board-wrapper { padding: 10px; }
         .controls { grid-template-columns: 1fr 1fr; display: grid; gap: 8px; }
         .controls .controls-group { grid-column: 1 / -1; }
         .game-controls { grid-template-columns: 1fr; }
-        .number-palette { grid-template-columns: repeat(10, 1fr); }
+        .number-palette {grid-template-columns: repeat(10, 1fr);}
     }
   </style>
-</head>
+<style data-id="immersive-translate-input-injected-css">.immersive-translate-input {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 2147483647;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.immersive-translate-attach-loading::after {
+  content: " ";
+
+  --loading-color: #f78fb6;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: block;
+  margin: 12px auto;
+  position: relative;
+  color: white;
+  left: -100px;
+  box-sizing: border-box;
+  animation: immersiveTranslateShadowRolling 1.5s linear infinite;
+
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-2000%, -50%);
+  z-index: 100;
+}
+
+.immersive-translate-loading-spinner {
+  vertical-align: middle !important;
+  width: 10px !important;
+  height: 10px !important;
+  display: inline-block !important;
+  margin: 0 4px !important;
+  border: 2px rgba(221, 244, 255, 0.6) solid !important;
+  border-top: 2px rgba(0, 0, 0, 0.375) solid !important;
+  border-left: 2px rgba(0, 0, 0, 0.375) solid !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  -webkit-animation: immersive-translate-loading-animation 0.6s infinite linear !important;
+  animation: immersive-translate-loading-animation 0.6s infinite linear !important;
+}
+
+@-webkit-keyframes immersive-translate-loading-animation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(359deg);
+  }
+}
+
+@keyframes immersive-translate-loading-animation {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(359deg);
+  }
+}
+
+.immersive-translate-input-loading {
+  --loading-color: #f78fb6;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: block;
+  margin: 12px auto;
+  position: relative;
+  color: white;
+  left: -100px;
+  box-sizing: border-box;
+  animation: immersiveTranslateShadowRolling 1.5s linear infinite;
+}
+
+@keyframes immersiveTranslateShadowRolling {
+  0% {
+    box-shadow: 0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0),
+      0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0);
+  }
+
+  12% {
+    box-shadow: 100px 0 var(--loading-color), 0px 0 rgba(255, 255, 255, 0),
+      0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0);
+  }
+
+  25% {
+    box-shadow: 110px 0 var(--loading-color), 100px 0 var(--loading-color),
+      0px 0 rgba(255, 255, 255, 0), 0px 0 rgba(255, 255, 255, 0);
+  }
+
+  36% {
+    box-shadow: 120px 0 var(--loading-color), 110px 0 var(--loading-color),
+      100px 0 var(--loading-color), 0px 0 rgba(255, 255, 255, 0);
+  }
+
+  50% {
+    box-shadow: 130px 0 var(--loading-color), 120px 0 var(--loading-color),
+      110px 0 var(--loading-color), 100px 0 var(--loading-color);
+  }
+
+  62% {
+    box-shadow: 200px 0 rgba(255, 255, 255, 0), 130px 0 var(--loading-color),
+      120px 0 var(--loading-color), 110px 0 var(--loading-color);
+  }
+
+  75% {
+    box-shadow: 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0),
+      130px 0 var(--loading-color), 120px 0 var(--loading-color);
+  }
+
+  87% {
+    box-shadow: 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0),
+      200px 0 rgba(255, 255, 255, 0), 130px 0 var(--loading-color);
+  }
+
+  100% {
+    box-shadow: 200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0),
+      200px 0 rgba(255, 255, 255, 0), 200px 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.immersive-translate-toast {
+  display: flex;
+  position: fixed;
+  z-index: 2147483647;
+  left: 0;
+  right: 0;
+  top: 1%;
+  width: fit-content;
+  padding: 12px 20px;
+  margin: auto;
+  overflow: auto;
+  background: #fef6f9;
+  box-shadow: 0px 4px 10px 0px rgba(0, 10, 30, 0.06);
+  font-size: 15px;
+  border-radius: 8px;
+  color: #333;
+}
+
+.immersive-translate-toast-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.immersive-translate-toast-hidden {
+  margin: 0 20px 0 72px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.immersive-translate-toast-close {
+  color: #666666;
+  font-size: 20px;
+  font-weight: bold;
+  padding: 0 10px;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+  .immersive-translate-toast {
+    top: 0;
+    padding: 12px 0px 0 10px;
+  }
+  .immersive-translate-toast-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  .immersive-translate-toast-hidden {
+    margin: 10px auto;
+  }
+}
+
+.immersive-translate-dialog {
+  position: fixed;
+  z-index: 2147483647;
+  left: 0;
+  top: 0;
+  display: flex;
+  width: 300px;
+  flex-direction: column;
+  align-items: center;
+  font-size: 15px;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  height: fit-content;
+  border-radius: 20px;
+  background-color: #fff;
+}
+
+.immersive-translate-modal {
+  display: none;
+  position: fixed;
+  z-index: 2147483647;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0, 0, 0);
+  background-color: rgba(0, 0, 0, 0.4);
+  font-size: 15px;
+}
+
+.immersive-translate-modal-content {
+  background-color: #fefefe;
+  margin: 10% auto;
+  padding: 40px 24px 24px;
+  border-radius: 12px;
+  width: 350px;
+  font-family: system-ui, -apple-system, "Segoe UI", "Roboto", "Ubuntu",
+    "Cantarell", "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol", "Noto Color Emoji";
+  position: relative;
+}
+
+@media screen and (max-width: 768px) {
+  .immersive-translate-modal-content {
+    margin: 25% auto !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .immersive-translate-modal-content {
+    width: 80vw !important;
+    margin: 20vh auto !important;
+    padding: 20px 12px 12px !important;
+  }
+
+  .immersive-translate-modal-title {
+    font-size: 14px !important;
+  }
+
+  .immersive-translate-modal-body {
+    font-size: 13px !important;
+    max-height: 60vh !important;
+  }
+
+  .immersive-translate-btn {
+    font-size: 13px !important;
+    padding: 8px 16px !important;
+    margin: 0 4px !important;
+  }
+
+  .immersive-translate-modal-footer {
+    gap: 6px !important;
+    margin-top: 16px !important;
+  }
+}
+
+.immersive-translate-modal .immersive-translate-modal-content-in-input {
+  max-width: 500px;
+}
+.immersive-translate-modal-content-in-input .immersive-translate-modal-body {
+  text-align: left;
+  max-height: unset;
+}
+
+.immersive-translate-modal-title {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #333333;
+}
+
+.immersive-translate-modal-body {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 400;
+  color: #333333;
+  margin-top: 24px;
+}
+
+@media screen and (max-width: 768px) {
+  .immersive-translate-modal-body {
+    max-height: 250px;
+    overflow-y: auto;
+  }
+}
+
+.immersive-translate-close {
+  color: #666666;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.immersive-translate-close:hover,
+.immersive-translate-close:focus {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.immersive-translate-modal-footer {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.immersive-translate-btn {
+  width: fit-content;
+  color: #fff;
+  background-color: #ea4c89;
+  border: none;
+  font-size: 14px;
+  margin: 0 8px;
+  padding: 9px 30px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.immersive-translate-btn-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.immersive-translate-btn:hover {
+  background-color: #f082ac;
+}
+.immersive-translate-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.immersive-translate-btn:disabled:hover {
+  background-color: #ea4c89;
+}
+
+.immersive-translate-link-btn {
+  background-color: transparent;
+  color: #ea4c89;
+  border: none;
+  cursor: pointer;
+  height: 30px;
+  line-height: 30px;
+}
+
+.immersive-translate-cancel-btn {
+  /* gray color */
+  background-color: rgb(89, 107, 120);
+}
+
+.immersive-translate-cancel-btn:hover {
+  background-color: hsl(205, 20%, 32%);
+}
+
+.immersive-translate-action-btn {
+  background-color: transparent;
+  color: #ea4c89;
+  border: 1px solid #ea4c89;
+}
+
+.immersive-translate-btn svg {
+  margin-right: 5px;
+}
+
+.immersive-translate-link {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-drag: none;
+  text-decoration: none;
+  color: #ea4c89;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+}
+
+.immersive-translate-primary-link {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-drag: none;
+  text-decoration: none;
+  color: #ea4c89;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+}
+
+.immersive-translate-modal input[type="radio"] {
+  margin: 0 6px;
+  cursor: pointer;
+}
+
+.immersive-translate-modal label {
+  cursor: pointer;
+}
+
+.immersive-translate-close-action {
+  position: absolute;
+  top: 2px;
+  right: 0px;
+  cursor: pointer;
+}
+
+.imt-image-status {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 16px !important;
+}
+.imt-image-status img,
+.imt-image-status svg,
+.imt-img-loading {
+  width: 28px !important;
+  height: 28px !important;
+  margin: 0 0 8px 0 !important;
+  min-height: 28px !important;
+  min-width: 28px !important;
+  position: relative !important;
+}
+.imt-img-loading {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADgAAAA4CAMAAACfWMssAAAAtFBMVEUAAAD////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////oK74hAAAAPHRSTlMABBMIDyQXHwyBfFdDMSw+OjXCb+5RG51IvV/k0rOqlGRM6KKMhdvNyZBz9MaupmxpWyj437iYd/yJVNZeuUC7AAACt0lEQVRIx53T2XKiUBCA4QYOiyCbiAsuuGBcYtxiYtT3f6/pbqoYHVFO5r+iivpo6DpAWYpqeoFfr9f90DsYAuRSWkFnPO50OgR9PwiCUFcl2GEcx+N/YBh6pvKaefHlUgZd1zVe0NbYcQjGBfzrPE8Xz8aF+71D8gG6DHFPpc4a7xFiCDuhaWgKgGIJQ3d5IMGDrpS4S5KgpIm+en9f6PlAhKby4JwEIxlYJV9h5k5nee9GoxHJ2IDSNB0dwdad1NAxDJ/uXDHYmebdk4PdbkS58CIVHdYSUHTYYRWOJblWSyu2lmy3KNFVJNBhxcuGW4YBVCbYGRZwIooipHsNqjM4FbgOQqQqSKQQU9V8xmi1QlgHqQQ6DDBvRUVCDirs+EzGDGOQTCATgtYTnbCVLgsVgRE0T1QE0qHCFAht2z6dLvJQs3Lo2FQoDxWNUiBhaP4eRgwNkI+dAjVOA/kUrIDwf3CG8NfNOE0eiFotSuo+rBiq8tD9oY4Qzc6YJw99hl1wzpQvD7ef2M8QgnOGJfJw+EltQc+oX2yn907QB22WZcvlUpd143dqQu+8pCJZuGE4xCuPXJqqcs5sNpsI93Rmzym1k4Npk+oD1SH3/a3LOK/JpUBpWfqNySxWzCfNCUITuDG5dtuphrUJ1myeIE9bIsPiKrfqTai5WZxbhtNphYx6GEIHihyGFTI69lje/rxajdh0s0msZ0zYxyPLhYCb1CyHm9Qsd2H37Y3lugVwL9kNh8Ot8cha6fUNQ8nuXi5z9/ExsAO4zQrb/ev1yrCB7lGyQzgYDGuxq1toDN/JGvN+HyWNHKB7zEoK+PX11e12G431erGYzwmytAWU56fkMHY5JJnDRR2eZji3AwtIcrEV8Cojat/BdQ7XOwGV1e1hDjGGjXbdArm8uJZtCH5MbcctVX8A1WpqumJHwckAAAAASUVORK5CYII=");
+  background-size: 28px 28px;
+  animation: image-loading-rotate 1s linear infinite !important;
+}
+
+.imt-image-status span {
+  color: var(--bg-2, #fff) !important;
+  font-size: 14px !important;
+  line-height: 14px !important;
+  font-weight: 500 !important;
+  font-family: "PingFang SC", Arial, sans-serif !important;
+}
+
+@keyframes image-loading-rotate {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+</style></head>
 <body>
   <div class="app">
     <section class="panel">
       <header>
         <div class="title">
           <div class="logo" aria-hidden="true"></div>
-          <div><h1>SUK 数独游戏 & 计算器</h1><div class="subtitle">投降吧，SUK</div></div>
+          <div><h1>SUK 数独游戏 &amp; 计算器</h1><div class="subtitle">投降吧，SUK - <a href="http://shudu.suk.pub">http://shudu.suk.pub</a></div></div>
         </div>
         <div class="header-controls">
-          <div class="badge" id="status">选择模式</div>
+          <div class="badge warn" id="status">游戏已重置</div>
           <button id="themeToggle" class="theme-toggle" title="切换亮色/暗色模式" aria-label="切换主题">
             <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
             <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
@@ -98,14 +546,14 @@
       </header>
       
       <div class="board-wrapper">
-        <div class="board" id="board" aria-label="Sudoku board grid" role="grid"></div>
+        <div class="board" id="board" aria-label="Sudoku board grid" role="grid"><div class="box"><div class="cell" data-row="0" data-col="0"><input type="text" maxlength="1" data-row="0" data-col="0"></div><div class="cell" data-row="0" data-col="1"><input type="text" maxlength="1" data-row="0" data-col="1"></div><div class="cell" data-row="0" data-col="2"><input type="text" maxlength="1" data-row="0" data-col="2"></div><div class="cell" data-row="1" data-col="0"><input type="text" maxlength="1" data-row="1" data-col="0"></div><div class="cell" data-row="1" data-col="1"><input type="text" maxlength="1" data-row="1" data-col="1"></div><div class="cell" data-row="1" data-col="2"><input type="text" maxlength="1" data-row="1" data-col="2"></div><div class="cell" data-row="2" data-col="0"><input type="text" maxlength="1" data-row="2" data-col="0"></div><div class="cell" data-row="2" data-col="1"><input type="text" maxlength="1" data-row="2" data-col="1"></div><div class="cell" data-row="2" data-col="2"><input type="text" maxlength="1" data-row="2" data-col="2"></div></div><div class="box"><div class="cell" data-row="0" data-col="3"><input type="text" maxlength="1" data-row="0" data-col="3"></div><div class="cell" data-row="0" data-col="4"><input type="text" maxlength="1" data-row="0" data-col="4"></div><div class="cell" data-row="0" data-col="5"><input type="text" maxlength="1" data-row="0" data-col="5"></div><div class="cell" data-row="1" data-col="3"><input type="text" maxlength="1" data-row="1" data-col="3"></div><div class="cell" data-row="1" data-col="4"><input type="text" maxlength="1" data-row="1" data-col="4"></div><div class="cell" data-row="1" data-col="5"><input type="text" maxlength="1" data-row="1" data-col="5"></div><div class="cell" data-row="2" data-col="3"><input type="text" maxlength="1" data-row="2" data-col="3"></div><div class="cell" data-row="2" data-col="4"><input type="text" maxlength="1" data-row="2" data-col="4"></div><div class="cell" data-row="2" data-col="5"><input type="text" maxlength="1" data-row="2" data-col="5"></div></div><div class="box"><div class="cell" data-row="0" data-col="6"><input type="text" maxlength="1" data-row="0" data-col="6"></div><div class="cell" data-row="0" data-col="7"><input type="text" maxlength="1" data-row="0" data-col="7"></div><div class="cell" data-row="0" data-col="8"><input type="text" maxlength="1" data-row="0" data-col="8"></div><div class="cell" data-row="1" data-col="6"><input type="text" maxlength="1" data-row="1" data-col="6"></div><div class="cell" data-row="1" data-col="7"><input type="text" maxlength="1" data-row="1" data-col="7"></div><div class="cell" data-row="1" data-col="8"><input type="text" maxlength="1" data-row="1" data-col="8"></div><div class="cell" data-row="2" data-col="6"><input type="text" maxlength="1" data-row="2" data-col="6"></div><div class="cell" data-row="2" data-col="7"><input type="text" maxlength="1" data-row="2" data-col="7"></div><div class="cell" data-row="2" data-col="8"><input type="text" maxlength="1" data-row="2" data-col="8"></div></div><div class="box"><div class="cell" data-row="3" data-col="0"><input type="text" maxlength="1" data-row="3" data-col="0"></div><div class="cell" data-row="3" data-col="1"><input type="text" maxlength="1" data-row="3" data-col="1"></div><div class="cell" data-row="3" data-col="2"><input type="text" maxlength="1" data-row="3" data-col="2"></div><div class="cell" data-row="4" data-col="0"><input type="text" maxlength="1" data-row="4" data-col="0"></div><div class="cell" data-row="4" data-col="1"><input type="text" maxlength="1" data-row="4" data-col="1"></div><div class="cell" data-row="4" data-col="2"><input type="text" maxlength="1" data-row="4" data-col="2"></div><div class="cell" data-row="5" data-col="0"><input type="text" maxlength="1" data-row="5" data-col="0"></div><div class="cell" data-row="5" data-col="1"><input type="text" maxlength="1" data-row="5" data-col="1"></div><div class="cell" data-row="5" data-col="2"><input type="text" maxlength="1" data-row="5" data-col="2"></div></div><div class="box"><div class="cell" data-row="3" data-col="3"><input type="text" maxlength="1" data-row="3" data-col="3"></div><div class="cell" data-row="3" data-col="4"><input type="text" maxlength="1" data-row="3" data-col="4"></div><div class="cell" data-row="3" data-col="5"><input type="text" maxlength="1" data-row="3" data-col="5"></div><div class="cell" data-row="4" data-col="3"><input type="text" maxlength="1" data-row="4" data-col="3"></div><div class="cell" data-row="4" data-col="4"><input type="text" maxlength="1" data-row="4" data-col="4"></div><div class="cell" data-row="4" data-col="5"><input type="text" maxlength="1" data-row="4" data-col="5"></div><div class="cell" data-row="5" data-col="3"><input type="text" maxlength="1" data-row="5" data-col="3"></div><div class="cell" data-row="5" data-col="4"><input type="text" maxlength="1" data-row="5" data-col="4"></div><div class="cell" data-row="5" data-col="5"><input type="text" maxlength="1" data-row="5" data-col="5"></div></div><div class="box"><div class="cell" data-row="3" data-col="6"><input type="text" maxlength="1" data-row="3" data-col="6"></div><div class="cell" data-row="3" data-col="7"><input type="text" maxlength="1" data-row="3" data-col="7"></div><div class="cell" data-row="3" data-col="8"><input type="text" maxlength="1" data-row="3" data-col="8"></div><div class="cell" data-row="4" data-col="6"><input type="text" maxlength="1" data-row="4" data-col="6"></div><div class="cell" data-row="4" data-col="7"><input type="text" maxlength="1" data-row="4" data-col="7"></div><div class="cell" data-row="4" data-col="8"><input type="text" maxlength="1" data-row="4" data-col="8"></div><div class="cell" data-row="5" data-col="6"><input type="text" maxlength="1" data-row="5" data-col="6"></div><div class="cell" data-row="5" data-col="7"><input type="text" maxlength="1" data-row="5" data-col="7"></div><div class="cell" data-row="5" data-col="8"><input type="text" maxlength="1" data-row="5" data-col="8"></div></div><div class="box"><div class="cell" data-row="6" data-col="0"><input type="text" maxlength="1" data-row="6" data-col="0"></div><div class="cell" data-row="6" data-col="1"><input type="text" maxlength="1" data-row="6" data-col="1"></div><div class="cell" data-row="6" data-col="2"><input type="text" maxlength="1" data-row="6" data-col="2"></div><div class="cell" data-row="7" data-col="0"><input type="text" maxlength="1" data-row="7" data-col="0"></div><div class="cell" data-row="7" data-col="1"><input type="text" maxlength="1" data-row="7" data-col="1"></div><div class="cell" data-row="7" data-col="2"><input type="text" maxlength="1" data-row="7" data-col="2"></div><div class="cell" data-row="8" data-col="0"><input type="text" maxlength="1" data-row="8" data-col="0"></div><div class="cell" data-row="8" data-col="1"><input type="text" maxlength="1" data-row="8" data-col="1"></div><div class="cell" data-row="8" data-col="2"><input type="text" maxlength="1" data-row="8" data-col="2"></div></div><div class="box"><div class="cell" data-row="6" data-col="3"><input type="text" maxlength="1" data-row="6" data-col="3"></div><div class="cell" data-row="6" data-col="4"><input type="text" maxlength="1" data-row="6" data-col="4"></div><div class="cell" data-row="6" data-col="5"><input type="text" maxlength="1" data-row="6" data-col="5"></div><div class="cell" data-row="7" data-col="3"><input type="text" maxlength="1" data-row="7" data-col="3"></div><div class="cell" data-row="7" data-col="4"><input type="text" maxlength="1" data-row="7" data-col="4"></div><div class="cell" data-row="7" data-col="5"><input type="text" maxlength="1" data-row="7" data-col="5"></div><div class="cell" data-row="8" data-col="3"><input type="text" maxlength="1" data-row="8" data-col="3"></div><div class="cell" data-row="8" data-col="4"><input type="text" maxlength="1" data-row="8" data-col="4"></div><div class="cell" data-row="8" data-col="5"><input type="text" maxlength="1" data-row="8" data-col="5"></div></div><div class="box"><div class="cell" data-row="6" data-col="6"><input type="text" maxlength="1" data-row="6" data-col="6"></div><div class="cell" data-row="6" data-col="7"><input type="text" maxlength="1" data-row="6" data-col="7"></div><div class="cell" data-row="6" data-col="8"><input type="text" maxlength="1" data-row="6" data-col="8"></div><div class="cell" data-row="7" data-col="6"><input type="text" maxlength="1" data-row="7" data-col="6"></div><div class="cell" data-row="7" data-col="7"><input type="text" maxlength="1" data-row="7" data-col="7"></div><div class="cell" data-row="7" data-col="8"><input type="text" maxlength="1" data-row="7" data-col="8"></div><div class="cell" data-row="8" data-col="6"><input type="text" maxlength="1" data-row="8" data-col="6"></div><div class="cell" data-row="8" data-col="7"><input type="text" maxlength="1" data-row="8" data-col="7"></div><div class="cell" data-row="8" data-col="8"><input type="text" maxlength="1" data-row="8" data-col="8"></div></div></div>
       </div>
 
-      <div class="number-palette" id="numberPalette"></div>
+      <div class="number-palette" id="numberPalette"><button class="num-btn" data-number="1">1</button><button class="num-btn" data-number="2">2</button><button class="num-btn" data-number="3">3</button><button class="num-btn" data-number="4">4</button><button class="num-btn" data-number="5">5</button><button class="num-btn" data-number="6">6</button><button class="num-btn" data-number="7">7</button><button class="num-btn" data-number="8">8</button><button class="num-btn" data-number="9">9</button><button class="num-btn" data-number="erase">X</button></div>
 
       <div class="game-controls">
           <select id="difficultySelect">
-            <option value="easy" selected>容易</option>
+            <option value="easy" selected="">容易</option>
             <option value="medium">中等</option>
             <option value="hard">困难</option>
             <option value="expert">专家</option>
@@ -114,15 +562,15 @@
       </div>
 
       <div class="controls">
-        <button class="primary" id="solveBtn">一键求解</button>
+        <button class="primary" id="solveBtn">查看答案</button>
         <button class="accent" id="hintBtn">给个提示</button>
         <button class="muted" id="checkBtn">检查冲突</button>
         <button class="muted" id="exportBtn">导出81字符</button>
-        <button class="danger" id="clearBtn">清空面板</button>
+        <button class="danger" id="clearBtn">重置游戏</button>
         <div class="controls-group">
-          <button id="saveBtn" style="flex-shrink: 0;">保存局面</button>
-          <select id="savedPuzzlesSelect"><option value="">加载已存...</option></select>
-          <button id="deleteBtn" class="danger" style="flex-shrink: 0;">删除</button>
+          <button id="saveBtn" style="flex-shrink: 0;" disabled="">保存局面</button>
+          <select id="savedPuzzlesSelect" disabled=""><option value="">加载已存...</option></select>
+          <button id="deleteBtn" class="danger" style="flex-shrink: 0;" disabled="">删除</button>
         </div>
       </div>
     </section>
@@ -621,5 +1069,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-</body>
-</html>
+
+
+</body><div id="immersive-translate-popup" style="all: initial"></div></html>
