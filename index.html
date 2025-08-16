@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>数独计算器 · SUK版</title>
+  <style>
+    /* 样式部分无变化 */
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --muted: #94a3b8; --text: #e2e8f0; --accent: #22d3ee; --accent-2: #a78bfa; --good: #34d399; --bad: #f87171; --warn: #f59e0b; --grid-border: #334155; --cell-bg: #0f172a; --cell-placeholder: #475569; --cell-focus-glow: rgba(34,211,238,.12); --cell-error-bg: linear-gradient(180deg, rgba(248,113,113,.18), rgba(248,113,113,.06)); --highlight-bg: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01)); --btn-border: rgba(255,255,255,.08); --btn-bg: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); --btn-shadow-inset: 0 1px 0 rgba(255,255,255,.06) inset; --code-bg: rgba(255,255,255,.06); --shadow: 0 10px 30px rgba(0,0,0,.35); --radius: 18px;
+    }
+    html[data-theme="light"] {
+      --bg: #f1f5f9; --panel: #ffffff; --muted: #64748b; --text: #1e293b; --accent: #0891b2; --accent-2: #8b5cf6; --good: #10b981; --bad: #ef4444; --warn: #f59e0b; --grid-border: #cbd5e1; --cell-bg: #f8fafc; --cell-placeholder: #94a3b8; --cell-focus-glow: rgba(8,145,178,.1); --cell-error-bg: linear-gradient(180deg, rgba(239,68,68,.15), rgba(239,68,68,.05)); --highlight-bg: linear-gradient(180deg, rgba(0,0,0,.02), transparent); --btn-border: #e2e8f0; --btn-bg: linear-gradient(180deg, #ffffff, #f8fafc); --btn-shadow-inset: 0 1px 0 rgba(0,0,0,.02) inset; --code-bg: #f1f5f9; --shadow: 0 10px 30px rgba(0,0,0,.1);
+    }
+    html,body{height:100%}
+    body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, PingFang SC, Noto Sans SC, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background: radial-gradient(1200px 600px at 20% -10%, var(--accent), transparent .6), radial-gradient(1400px 800px at 120% 20%, var(--accent-2), transparent .8), var(--bg); background-blend-mode: color-dodge; color:var(--text); display:flex; align-items:center; justify-content:center; padding:24px; box-sizing: border-box; transition: background .3s, color .3s; }
+    .app{width:min(1100px, 95vw); display:grid; grid-template-columns: 1fr 360px; gap:24px; align-items:start}
+    .panel{background:var(--panel); border:1px solid var(--btn-border); box-shadow:var(--shadow); border-radius:var(--radius); padding:20px; transition: .3s background, .3s border-color;}
+    header{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px}
+    .title{display:flex; align-items:center; gap:12px}
+    .logo{width:36px; height:36px; border-radius:10px; background: conic-gradient(from 120deg, var(--accent), var(--accent-2)); filter:saturate(120%);}
+    h1{font-size:20px; margin:0}
+    .subtitle{color:var(--muted); font-size:12px}
+    .header-controls{display: flex; align-items: center; gap: 12px;}
+    .board-wrapper{padding:14px; border-radius:16px; background:var(--highlight-bg); border:1px solid var(--btn-border); transition: .3s background, .3s border-color;}
+    .board{display:grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); aspect-ratio: 1 / 1; gap: 3px; background: var(--grid-border); border-radius: 12px; overflow: hidden; transition: .3s background;}
+    .box {display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 1px; background: var(--grid-border);}
+    .cell{position: relative; background: var(--cell-bg); transition: .3s background;}
+    .cell input{width:100%; height:100%; text-align:center; font-size:clamp(1rem, 5vw, 28px); font-weight:600; color:var(--text); background:transparent; border:0; outline:none; caret-color:var(--accent); transition: .3s color;}
+    .cell input::placeholder{color: var(--cell-placeholder)}
+    .cell input:focus{background: radial-gradient(400px 100px at center, var(--cell-focus-glow), transparent)}
+    .cell.highlight{background: var(--highlight-bg)}
+    .cell.same-number input{color: var(--accent-2)}
+    .cell.prefilled input{color:var(--accent)}
+    .cell.solved input{color: var(--good); opacity: 0.9;}
+    .cell.error{background: var(--cell-error-bg)}
+    .controls{display:flex; flex-wrap:wrap; gap:10px}
+    button, .theme-toggle, select{ appearance:none; border:1px solid var(--btn-border); background: var(--btn-bg); color:var(--text); padding:10px 14px; border-radius:12px; cursor:pointer; font-weight:600; transition:.2s all; box-shadow: var(--btn-shadow-inset), 0 4px 12px rgba(0,0,0,.1); }
+    button:hover, select:hover {filter:brightness(1.15)}
+    html[data-theme="light"] button:hover, html[data-theme="light"] select:hover { filter: brightness(0.97); }
+    button:active, .theme-toggle:active{transform:translateY(1px); filter:brightness(1);}
+    select { padding-right: 30px; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right .7rem center; background-size: 1em .5em; }
+    .theme-toggle { padding: 8px; line-height: 0; }
+    .theme-toggle .icon-sun { display: none; }
+    html[data-theme="light"] .theme-toggle .icon-moon { display: none; }
+    html[data-theme="light"] .theme-toggle .icon-sun { display: block; }
+    .primary{border-color: rgba(34,211,238,.35); background:linear-gradient(180deg, rgba(34,211,238,.25), rgba(34,211,238,.10));}
+    html[data-theme="light"] .primary{border-color: #67e8f9; background: #ecfeff;}
+    .accent{border-color: rgba(167,139,250,.35); background:linear-gradient(180deg, rgba(167,139,250,.25), rgba(167,139,250,.10));}
+    html[data-theme="light"] .accent{border-color: #c4b5fd; background: #f5f3ff;}
+    .danger{border-color: rgba(248,113,113,.35); background:linear-gradient(180deg, rgba(248,113,113,.25), rgba(248,113,113,.10));}
+    html[data-theme="light"] .danger{border-color: #fca5a5; background: #fef2f2;}
+    .muted{opacity:.9}
+    .aside h2{margin:0 0 10px 0; font-size:16px}
+    .aside p{margin:6px 0; color:var(--muted); font-size:13px; line-height:1.4}
+    .aside .group{margin-bottom:16px}
+    .aside code{background: var(--code-bg); padding:2px 6px; border-radius:6px; font-size: 13px; transition: .3s background;}
+    .footer{margin-top:12px; color:var(--muted); font-size:12px}
+    .badge{display:inline-block; padding:3px 10px; border-radius:999px; border:1px solid var(--grid-border); margin-left:8px; font-size:11px; color:#cbd5e1; transition:.3s all}
+    html[data-theme="light"] .badge {color: var(--muted); }
+    #status.good{border-color:rgba(52,211,153,.5); background:rgba(52,211,153,.1); color:var(--good)}
+    #status.bad{border-color:rgba(248,113,113,.5); background:rgba(248,113,113,.1); color:var(--bad)}
+    #status.warn{border-color:rgba(245,158,11,.5); background:rgba(245,158,11,.1); color:var(--warn)}
+    .toast{position:fixed; right:20px; bottom:20px; padding:12px 16px; border-radius:12px; background:var(--panel); border:1px solid var(--btn-border); box-shadow:var(--shadow); transform:translateY(20px); opacity:0; visibility:hidden; transition: .4s all; z-index: 100; }
+    .toast.show{transform:translateY(0); opacity:1; visibility:visible;}
+    .controls-group { display: flex; width: 100%; gap: 10px; }
+    .controls-group select { flex-grow: 1; }
+    @media (max-width: 900px){ .app{grid-template-columns: 1fr} .aside {display: none;} }
+    @media (max-width: 480px) {
+        body { padding: 12px; } .app { gap: 16px; } .panel { padding: 16px; } header { flex-direction: column; align-items: flex-start; gap: 16px; } .header-controls { align-self: stretch; justify-content: space-between; } .badge { margin-left: 0; }
+        h1 { font-size: 18px; } .logo { width: 32px; height: 32px; } .board-wrapper { padding: 10px; }
+        .controls { grid-template-columns: 1fr 1fr; display: grid; gap: 8px; }
+        .controls .controls-group { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <!-- HTML部分无变化 -->
+  <div class="app">
+    <section class="panel">
+      <header>
+        <div class="title">
+          <div class="logo" aria-hidden="true"></div>
+          <div><h1>SUK 数独计算器</h1><div class="subtitle">H5 单文件 · 优雅好用 · 支持校验/求解/提示</div></div>
+        </div>
+        <div class="header-controls">
+          <div class="badge" id="status">就绪</div>
+          <button id="themeToggle" class="theme-toggle" title="切换亮色/暗色模式" aria-label="切换主题">
+            <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          </button>
+        </div>
+      </header>
+      <div class="board-wrapper">
+        <div class="board" id="board" aria-label="Sudoku board grid" role="grid"></div>
+      </div>
+      <div class="controls" style="margin-top:14px">
+        <button class="primary" id="solveBtn">一键求解</button>
+        <button class="accent" id="hintBtn">给个提示</button>
+        <button class="muted" id="checkBtn">检查冲突</button>
+        <button class="muted" id="exportBtn">导出81字符</button>
+        <button class="danger" id="clearBtn">清空</button>
+        <div class="controls-group">
+          <button id="saveBtn" style="flex-shrink: 0;">保存局面</button>
+          <select id="savedPuzzlesSelect"><option value="">加载已存...</option></select>
+          <button id="deleteBtn" class="danger" style="flex-shrink: 0;">删除</button>
+        </div>
+      </div>
+    </section>
+    <aside class="panel aside">
+      <h2>用法小贴士</h2>
+      <div class="group">
+        <p>· 点击格子直接输入 <b>1‑9</b>，<b>0</b> 或 <b>删除</b> 清空。</p>
+        <p>· 方向键在格子间移动；选中时会高亮 <b>行/列/宫</b> 与相同数字。</p>
+        <p>· <b>保存局面</b> 可自定义命名，默认为当前时间。</p>
+        <p>· <b>导出81字符</b> 复制当前局面（<code>.</code> 为空）。也可用 <code>Ctrl+V</code> 粘贴 81 字符快速导入。</p>
+      </div>
+      <div class="group">
+        <h2>键盘快捷键</h2>
+        <p><b>Enter</b>：求解； <b>H</b>：提示； <b>C</b>：检查； <b>Esc</b>：清空。</p>
+      </div>
+      <h2>关于</h2>
+      <p>无任何依赖的原生 H5，使用 <b>MRV+回溯</b> 的高效求解器，并带实时合法性校验与高亮。</p>
+      <p>QQ:6098577</p>
+      <p>软件开发：gortonlau</p>
+      <div class="footer">© 2025 Suk Sudoku Calc.</div>
+    </aside>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- DOM 元素获取 ---
+    const boardElement = document.getElementById('board');
+    const solveBtn = document.getElementById('solveBtn');
+    const hintBtn = document.getElementById('hintBtn');
+    const checkBtn = document.getElementById('checkBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const statusBadge = document.getElementById('status');
+    const toastElement = document.getElementById('toast');
+    const themeToggle = document.getElementById('themeToggle');
+    const saveBtn = document.getElementById('saveBtn');
+    const savedPuzzlesSelect = document.getElementById('savedPuzzlesSelect');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const cells = [];
+    const STORAGE_KEY = 'sudoku-saved-puzzles-v2';
+    
+    // 省略部分无改动代码...
+    function applyTheme(theme) { document.documentElement.setAttribute('data-theme', theme); localStorage.setItem('sudoku-theme', theme); }
+    function toggleTheme() { const currentTheme = document.documentElement.dataset.theme || 'dark'; const newTheme = currentTheme === 'dark' ? 'light' : 'dark'; applyTheme(newTheme); }
+    function initTheme() { const savedTheme = localStorage.getItem('sudoku-theme'); const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches; if (savedTheme) { applyTheme(savedTheme); } else { applyTheme(prefersDark ? 'dark' : 'light'); } }
+    function createBoard() { boardElement.innerHTML = ''; cells.length = 0; const boxes = Array.from({ length: 9 }, () => { const box = document.createElement('div'); box.classList.add('box'); boardElement.appendChild(box); return box; }); for (let i = 0; i < 81; i++) { const row = Math.floor(i / 9); const col = i % 9; const boxIndex = Math.floor(row / 3) * 3 + Math.floor(col / 3); const cell = document.createElement('div'); cell.classList.add('cell'); cell.dataset.row = row; cell.dataset.col = col; const input = document.createElement('input'); input.type = 'text'; input.maxLength = 1; input.dataset.row = row; input.dataset.col = col; cell.appendChild(input); boxes[boxIndex].appendChild(cell); cells.push({ element: cell, input: input, row, col }); } }
+
+    // --- 事件监听 ---
+    function addEventListeners() {
+        boardElement.addEventListener('input', handleInput);
+        boardElement.addEventListener('focusin', handleFocus);
+        boardElement.addEventListener('focusout', handleBlur);
+        boardElement.addEventListener('keydown', handleKeyDown);
+        solveBtn.addEventListener('click', solve);
+        hintBtn.addEventListener('click', giveHint);
+        checkBtn.addEventListener('click', checkConflicts);
+        exportBtn.addEventListener('click', exportBoard);
+        
+        // [修复] 将 clearBtn 的监听器改为多行，以分离职责
+        clearBtn.addEventListener('click', () => {
+            clearBoard(true);
+            savedPuzzlesSelect.selectedIndex = 0;
+        });
+
+        themeToggle.addEventListener('click', toggleTheme);
+        document.addEventListener('keydown', handleShortcuts);
+        document.addEventListener('paste', handlePaste);
+        saveBtn.addEventListener('click', saveCurrentPuzzle);
+        savedPuzzlesSelect.addEventListener('change', loadSelectedPuzzle);
+        deleteBtn.addEventListener('click', deleteSelectedPuzzle);
+    }
+    
+    // --- 输入与高亮处理 ---
+    function handleInput(e) { 
+        savedPuzzlesSelect.selectedIndex = 0;
+        const input = e.target; const value = input.value; if (!/^[1-9]$/.test(value)) { input.value = ''; } clearHighlightsAndErrors(); handleFocus({ target: input }); 
+    }
+    function handleFocus(e) { clearHighlightsAndErrors(); const input = e.target; if (!input || typeof input.closest !== 'function') return; const cell = input.closest('.cell'); if (!cell) return; const row = parseInt(cell.dataset.row); const col = parseInt(cell.dataset.col); const value = input.value; cells.forEach(c => { const inRow = c.row === row; const inCol = c.col === col; const inBox = Math.floor(c.row / 3) === Math.floor(row / 3) && Math.floor(c.col / 3) === Math.floor(col / 3); if (inRow || inCol || inBox) { c.element.classList.add('highlight'); } if (value && c.input.value === value) { c.element.classList.add('same-number'); } }); }
+    function handleBlur() { setTimeout(clearHighlightsAndErrors, 100); }
+    function handleKeyDown(e) { const input = e.target; const row = parseInt(input.dataset.row); const col = parseInt(input.dataset.col); let nextCell = null; switch (e.key) { case 'ArrowUp': nextCell = cells.find(c => c.row === (row - 1 + 9) % 9 && c.col === col); break; case 'ArrowDown': nextCell = cells.find(c => c.row === (row + 1) % 9 && c.col === col); break; case 'ArrowLeft': nextCell = cells.find(c => c.row === row && c.col === (col - 1 + 9) % 9); break; case 'ArrowRight': nextCell = cells.find(c => c.row === row && c.col === (col + 1) % 9); break; case 'Backspace': case 'Delete': case '0': input.value = ''; e.preventDefault(); break; } if (nextCell) { e.preventDefault(); nextCell.input.focus(); } }
+    function handleShortcuts(e) { if (e.target.tagName === 'INPUT' || e.metaKey || e.ctrlKey) return; switch(e.key.toLowerCase()){ case 'enter': e.preventDefault(); solve(); break; case 'h': e.preventDefault(); giveHint(); break; case 'c': e.preventDefault(); checkConflicts(); break; case 'escape': e.preventDefault(); clearBtn.click(); break; } } // 让Esc键也触发click事件
+    function handlePaste(e) { const text = (e.clipboardData || window.clipboardData).getData('text').trim(); if (text.length === 81 && /^[0-9.]{81}$/.test(text)) { e.preventDefault(); loadBoardFromString(text); showToast('已成功粘贴并导入谜题'); savedPuzzlesSelect.selectedIndex = 0; } }
+
+    // --- 核心功能 ---
+    function solve() { const board = getBoard(); const startTime = performance.now(); if (solveSudoku(board)) { const endTime = performance.now(); setBoard(board, true); updateStatus(`求解成功! (${(endTime - startTime).toFixed(1)}ms)`, 'good'); } else { updateStatus('此题无解', 'bad'); } }
+    function giveHint() { const board = getBoard(); const emptyCells = []; for (let i = 0; i < 9; i++) { for (let j = 0; j < 9; j++) { if (board[i][j] === 0) { const possibilities = getPossibilities(board, i, j); emptyCells.push({ row: i, col: j, possibilities }); } } } if (emptyCells.length === 0) { updateStatus('棋盘已满', 'good'); return; } emptyCells.sort((a, b) => a.possibilities.length - b.possibilities.length); const bestCell = emptyCells[0]; if (bestCell && bestCell.possibilities.length > 0) { const tempBoard = board.map(row => [...row]); tempBoard[bestCell.row][bestCell.col] = bestCell.possibilities[0]; if (solveSudoku(tempBoard)) { cells.find(c => c.row === bestCell.row && c.col === bestCell.col).input.value = bestCell.possibilities[0]; updateStatus(`提示: (${bestCell.row + 1}, ${bestCell.col + 1}) 已填`, 'warn'); } else { updateStatus('无法提供有效提示', 'bad'); } } else { updateStatus('此题无解或已存在冲突', 'bad'); } }
+    function checkConflicts() { clearHighlightsAndErrors(); const board = getBoard(); let conflictFound = false; let hasEmptyCell = false; for (let i = 0; i < 9; i++) { for (let j = 0; j < 9; j++) { if (board[i][j] !== 0) { if (!isValid(board, i, j, board[i][j])) { cells.find(c => c.row === i && c.col === j).element.classList.add('error'); conflictFound = true; } } else { hasEmptyCell = true; } } } if (conflictFound) { updateStatus('发现冲突', 'bad'); } else if (!hasEmptyCell) { updateStatus('恭喜！已完成！', 'good'); } else { updateStatus('盘面合法', 'good'); } }
+    function exportBoard() { const boardString = getBoardAsString(); navigator.clipboard.writeText(boardString).then(() => { showToast('81位字符已复制到剪贴板'); }, () => { showToast('复制失败，请手动复制'); }); }
+
+    /**
+     * [修复] clearBoard 现在只负责清空棋盘，不再干涉下拉列表的状态。
+     * @param {boolean} showMsg 是否显示状态提示
+     */
+    function clearBoard(showMsg = true) { 
+        createBoard(); 
+        if (showMsg) updateStatus('就绪');
+    }
+    
+    // --- 保存/加载/删除 谜题逻辑 ---
+    // 这部分函数 (getSavedPuzzles, populate, getCurrentDateTime, saveCurrentPuzzle, deleteSelectedPuzzle) 保持不变
+    function getSavedPuzzles() { try { const puzzles = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; return Array.isArray(puzzles) ? puzzles : []; } catch (e) { return []; } }
+    function populateSavedPuzzlesDropdown() { const puzzles = getSavedPuzzles(); savedPuzzlesSelect.innerHTML = '<option value="">加载已存...</option>'; puzzles.forEach(item => { if (typeof item === 'object' && item.name && item.puzzle) { const option = document.createElement('option'); option.value = item.puzzle; option.textContent = item.name; savedPuzzlesSelect.appendChild(option); } }); }
+    function getCurrentDateTime() { const d = new Date(); const Y = d.getFullYear(); const M = String(d.getMonth() + 1).padStart(2, '0'); const D = String(d.getDate()).padStart(2, '0'); const h = String(d.getHours()).padStart(2, '0'); const m = String(d.getMinutes()).padStart(2, '0'); return `${Y}/${M}/${D} ${h}:${m}`; }
+    function saveCurrentPuzzle() { const boardString = getBoardAsString(); if (boardString.replaceAll('.', '').length < 10) { showToast('盘面太简单，无法保存'); return; } const puzzles = getSavedPuzzles(); if (puzzles.some(p => p.puzzle === boardString)) { showToast('该局面已保存，无需重复添加'); return; } const defaultName = `保存于 ${getCurrentDateTime()}`; const puzzleName = prompt("请输入局面名称：", defaultName); if (puzzleName === null) return; if (puzzleName.trim() === '') { showToast('名称不能为空'); return; } puzzles.push({ name: puzzleName.trim(), puzzle: boardString }); localStorage.setItem(STORAGE_KEY, JSON.stringify(puzzles)); populateSavedPuzzlesDropdown(); showToast(`已保存为 "${puzzleName.trim()}"`); }
+
+    function loadSelectedPuzzle() {
+        const puzzle = savedPuzzlesSelect.value;
+        if (puzzle) {
+            loadBoardFromString(puzzle);
+            const selectedName = savedPuzzlesSelect.options[savedPuzzlesSelect.selectedIndex].text;
+            updateStatus(`已加载 "${selectedName}"`);
+        }
+    }
+
+    function deleteSelectedPuzzle() {
+        const puzzleToDelete = savedPuzzlesSelect.value;
+        if (!puzzleToDelete) {
+            showToast('请先从列表中选择一个要删除的局面');
+            return;
+        }
+        let puzzles = getSavedPuzzles();
+        const puzzleName = savedPuzzlesSelect.options[savedPuzzlesSelect.selectedIndex].text;
+        puzzles = puzzles.filter(p => p.puzzle !== puzzleToDelete);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(puzzles));
+        populateSavedPuzzlesDropdown();
+        showToast(`已删除 "${puzzleName}"`);
+    }
+
+    // --- 求解器 & 辅助函数 ---
+    // (这部分代码无改动, 省略以减少篇幅)
+    function solveSudoku(board) { const mrvCell = findMRVCell(board); if (!mrvCell) return true; const { row, col, possibilities } = mrvCell; for (const num of possibilities) { board[row][col] = num; if (solveSudoku(board)) return true; board[row][col] = 0; } return false; }
+    function findMRVCell(board) { let bestCell = null; let minPossibilities = 10; for(let i = 0; i < 9; i++) { for (let j = 0; j < 9; j++) { if (board[i][j] === 0) { const possibilities = getPossibilities(board, i, j); if (possibilities.length < minPossibilities) { minPossibilities = possibilities.length; bestCell = { row: i, col: j, possibilities }; } if (minPossibilities <= 1) return bestCell; } } } return bestCell; }
+    function getPossibilities(board, row, col) { const possibilities = []; for (let num = 1; num <= 9; num++) { if (isPossible(board, row, col, num)) possibilities.push(num); } return possibilities; }
+    function getBoard() { const board = Array(9).fill(0).map(() => Array(9).fill(0)); cells.forEach(c => { board[c.row][c.col] = parseInt(c.input.value) || 0; }); return board; }
+    function getBoardAsString() { return cells.map(c => c.input.value || '.').join(''); }
+    function setBoard(board, markSolved = false) { const originalBoard = getBoard(); for (let i = 0; i < 9; i++) { for (let j = 0; j < 9; j++) { if(board[i][j] !== 0) { const cell = cells.find(c => c.row === i && c.col === j); cell.input.value = board[i][j]; if (markSolved && originalBoard[i][j] === 0) { cell.element.classList.add('solved'); } } } } }
+    function loadBoardFromString(str) { clearBoard(false); for (let i = 0; i < 81; i++) { if (str[i] && str[i] !== '.' && str[i] !== '0') { cells[i].input.value = str[i]; cells[i].element.classList.add('prefilled'); } } }
+    function isValid(board, row, col, num) { for (let i = 0; i < 9; i++) { if ((i !== col && board[row][i] === num) || (i !== row && board[i][col] === num)) return false; } const startRow = Math.floor(row / 3) * 3, startCol = Math.floor(col / 3) * 3; for (let i = 0; i < 3; i++) { for (let j = 0; j < 3; j++) { if ((startRow + i !== row || startCol + j !== col) && board[startRow + i][startCol + j] === num) return false; } } return true; }
+    function isPossible(board, row, col, num) { for (let i = 0; i < 9; i++) { if (board[row][i] === num || board[i][col] === num) return false; } const startRow = Math.floor(row / 3) * 3, startCol = Math.floor(col / 3) * 3; for (let i = 0; i < 3; i++) { for (let j = 0; j < 3; j++) { if (board[startRow + i][startCol + j] === num) return false; } } return true; }
+    function clearHighlightsAndErrors() { cells.forEach(c => { c.element.classList.remove('highlight', 'same-number', 'error'); }); }
+    function updateStatus(text, type = '') { statusBadge.textContent = text; statusBadge.className = 'badge'; if (type) statusBadge.classList.add(type); }
+    let toastTimer;
+    function showToast(message) { clearTimeout(toastTimer); toastElement.textContent = message; toastElement.classList.add('show'); toastTimer = setTimeout(() => { toastElement.classList.remove('show'); }, 3000); }
+
+    // --- 应用启动 ---
+    initTheme();
+    createBoard();
+    addEventListeners();
+    populateSavedPuzzlesDropdown();
+});
+</script>
+</body>
+</html>
