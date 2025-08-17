@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>数独计算器 · SUK投降版</title>
+  <title>数独计算器 · SUK版</title>
   <style>
     /* 样式部分无变化 */
     :root {
@@ -40,6 +40,7 @@
     button:hover, select:hover {filter:brightness(1.15)}
     html[data-theme="light"] button:hover, html[data-theme="light"] select:hover { filter: brightness(0.97); }
     button:active, .theme-toggle:active{transform:translateY(1px); filter:brightness(1);}
+    select { padding-right: 30px; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right .7rem center; background-size: 1em .5em; }
     .theme-toggle { padding: 8px; line-height: 0; }
     .theme-toggle .icon-sun { display: none; }
     html[data-theme="light"] .theme-toggle .icon-moon { display: none; }
@@ -81,7 +82,7 @@
       <header>
         <div class="title">
           <div class="logo" aria-hidden="true"></div>
-          <div><h1>SUK 数独作弊器</h1><div class="subtitle">投降吧 UK，你玩不过去的 - <a href="http://shudu.suk.pub">http://shudu.suk.pub</a></div></div>
+          <div><h1>SUK 数独计算器</h1><div class="subtitle">H5 单文件 · 优雅好用 · 支持校验/求解/提示</div></div>
         </div>
         <div class="header-controls">
           <div class="badge" id="status">就绪</div>
