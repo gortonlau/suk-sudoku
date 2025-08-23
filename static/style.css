@@ -296,7 +296,8 @@ header {
     backdrop-filter: blur(10px);
     padding: var(--spacing-lg);
     border-radius: var(--radius-lg);
-    margin-bottom: var(--spacing-md);
+/*     margin-bottom: var(--spacing-md); */
+    marign-bottom: 0!important;
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: var(--shadow-md);
 }
