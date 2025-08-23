@@ -718,7 +718,7 @@ header {
 
 .message {
     font-size: 1.1em;
-    margin-bottom: 15px;
+    margin-bottom: 5px;
     min-height: 25px;
     font-weight: 500;
 }
